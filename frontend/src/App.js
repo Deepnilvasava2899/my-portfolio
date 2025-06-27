@@ -1,11 +1,304 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-function App() {
+// Navigation Component
+const Navigation = () => {
+  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-purple-900/90 backdrop-blur-lg border-b border-purple-700/50">
+      <div className="container mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+            Deepnil Vasava
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex space-x-8">
+            <Link 
+              to="/" 
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                location.pathname === '/' 
+                  ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white' 
+                  : 'text-purple-200 hover:text-white hover:bg-purple-800'
+              }`}
+            >
+              Portfolio
+            </Link>
+            <Link 
+              to="/projects" 
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                location.pathname === '/projects' 
+                  ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white' 
+                  : 'text-purple-200 hover:text-white hover:bg-purple-800'
+              }`}
+            >
+              Projects
+            </Link>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t border-purple-700/50">
+            <div className="flex flex-col space-y-2 mt-4">
+              <Link 
+                to="/" 
+                className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                  location.pathname === '/' 
+                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white' 
+                    : 'text-purple-200 hover:text-white hover:bg-purple-800'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Portfolio
+              </Link>
+              <Link 
+                to="/projects" 
+                className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                  location.pathname === '/projects' 
+                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white' 
+                    : 'text-purple-200 hover:text-white hover:bg-purple-800'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Projects
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+// Projects Page Component
+const ProjectsPage = () => {
+  const projects = [
+    {
+      id: 1,
+      title: 'Dynamic Pricing Optimization for E-commerce Platform',
+      description: 'Developed a Python-based model using Scikit-learn and particle swarm optimization to forecast and optimize product prices, ensuring profitability.',
+      longDescription: 'This project involved creating a sophisticated machine learning model that analyzes market trends, competitor pricing, and customer behavior to dynamically adjust product prices in real-time. The system uses particle swarm optimization algorithms to find optimal pricing strategies that maximize both profitability and market competitiveness.',
+      tech: ['Python', 'Scikit-learn', 'Particle Swarm Optimization', 'Azure', 'Machine Learning'],
+      features: [
+        'Real-time price optimization',
+        'Market trend analysis',
+        'Competitor price monitoring',
+        'Profitability forecasting',
+        'Scalable Azure deployment'
+      ],
+      image: 'https://images.pexels.com/photos/16053029/pexels-photo-16053029.jpeg',
+      github: '#',
+      demo: '#'
+    },
+    {
+      id: 2,
+      title: 'Email Classifier for Gmail',
+      description: 'Developed a Python-based machine learning model to classify Gmail emails (e.g., spam, business), hosted on Azure for secure performance.',
+      longDescription: 'An intelligent email classification system that uses natural language processing and machine learning to automatically categorize Gmail emails into different categories such as spam, business, personal, and promotional. The system provides detailed analytics and productivity insights to help users manage their inbox more efficiently.',
+      tech: ['Python', 'Natural Language Processing', 'Machine Learning', 'Azure', 'Gmail API'],
+      features: [
+        'Multi-category email classification',
+        'Spam detection with high accuracy',
+        'Gmail API integration',
+        'Real-time processing',
+        'Productivity analytics dashboard'
+      ],
+      image: 'https://images.pexels.com/photos/5475760/pexels-photo-5475760.jpeg',
+      github: '#',
+      demo: '#'
+    },
+    {
+      id: 3,
+      title: 'Domain-Wise Address Export (Client-Based Project)',
+      description: 'Designed a VBA.NET solution with macros to categorize and extract domain addresses from Gmail accounts, ensuring transparency, privacy, and security.',
+      longDescription: 'A comprehensive data extraction and management tool built for enterprise clients to efficiently organize and export email addresses based on domain classification. The solution includes advanced macro automation, data validation, and export functionality while maintaining strict privacy and security standards.',
+      tech: ['VBA.NET', 'Excel Macros', 'Data Processing', 'Gmail Integration', 'Enterprise Security'],
+      features: [
+        'Domain-based email categorization',
+        'Automated data extraction',
+        'Excel macro integration',
+        'Privacy-focused design',
+        'Enterprise-grade security'
+      ],
+      image: 'https://images.unsplash.com/photo-1585384107568-5bc588c7eefd',
+      github: '#',
+      demo: '#'
+    }
+  ];
+
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800 pt-20">
+      {/* Hero Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+              My Projects
+            </h1>
+            <p className="text-xl text-purple-200 max-w-3xl mx-auto">
+              Explore my portfolio of innovative projects spanning machine learning, data science, and enterprise solutions.
+              Each project demonstrates my expertise in solving real-world problems through technology.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Projects Grid */}
+      <section className="pb-20">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+            {projects.map((project) => (
+              <div key={project.id} className="bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border border-purple-300/20 hover:transform hover:scale-105 transition-all duration-500 card-hover">
+                {/* Project Image */}
+                <div className="relative h-64 overflow-hidden">
+                  <img 
+                    src={project.image} 
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 to-transparent"></div>
+                  <div className="absolute bottom-4 left-6 right-6">
+                    <div className="flex flex-wrap gap-2">
+                      {project.tech.slice(0, 3).map((tech, index) => (
+                        <span key={index} className="bg-purple-700/80 text-white px-3 py-1 rounded-full text-sm">
+                          {tech}
+                        </span>
+                      ))}
+                      {project.tech.length > 3 && (
+                        <span className="bg-pink-700/80 text-white px-3 py-1 rounded-full text-sm">
+                          +{project.tech.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Project Content */}
+                <div className="p-8">
+                  <h3 className="text-2xl font-bold text-pink-300 mb-4">{project.title}</h3>
+                  <p className="text-purple-100 mb-6 leading-relaxed">{project.description}</p>
+                  
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => setSelectedProject(project)}
+                      className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 px-6 py-2 rounded-full font-semibold text-white transition-all duration-300 transform hover:scale-105"
+                    >
+                      View Details
+                    </button>
+                    <a 
+                      href={project.github}
+                      className="border-2 border-purple-400 hover:bg-purple-400 hover:text-purple-900 px-6 py-2 rounded-full font-semibold text-purple-200 transition-all duration-300"
+                    >
+                      GitHub
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Project Modal */}
+      {selectedProject && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-purple-900/95 backdrop-blur-lg rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-purple-300/20">
+            <div className="p-8">
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-3xl font-bold text-pink-300">{selectedProject.title}</h2>
+                <button 
+                  onClick={() => setSelectedProject(null)}
+                  className="text-purple-300 hover:text-white transition-colors"
+                >
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <img 
+                    src={selectedProject.image} 
+                    alt={selectedProject.title}
+                    className="w-full h-64 object-cover rounded-2xl"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-purple-200 mb-4">Technologies Used</h3>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {selectedProject.tech.map((tech, index) => (
+                      <span key={index} className="bg-purple-700/80 text-white px-3 py-1 rounded-full text-sm">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <h3 className="text-xl font-semibold text-purple-200 mb-4">Key Features</h3>
+                  <ul className="space-y-2">
+                    {selectedProject.features.map((feature, index) => (
+                      <li key={index} className="text-purple-100 flex items-start">
+                        <span className="text-pink-400 mr-3">•</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold text-purple-200 mb-4">Project Overview</h3>
+                <p className="text-purple-100 leading-relaxed mb-6">{selectedProject.longDescription}</p>
+                
+                <div className="flex gap-4">
+                  <a 
+                    href={selectedProject.github}
+                    className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 px-6 py-3 rounded-full font-semibold text-white transition-all duration-300 transform hover:scale-105"
+                  >
+                    View on GitHub
+                  </a>
+                  <a 
+                    href={selectedProject.demo}
+                    className="border-2 border-purple-400 hover:bg-purple-400 hover:text-purple-900 px-6 py-3 rounded-full font-semibold text-purple-200 transition-all duration-300"
+                  >
+                    Live Demo
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main Portfolio Page Component
+const PortfolioPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -87,27 +380,6 @@ function App() {
     }
   ];
 
-  const projects = [
-    {
-      title: 'Dynamic Pricing Optimization for E-commerce Platform',
-      description: 'Developed a Python-based model using Scikit-learn and particle swarm optimization to forecast and optimize product prices, ensuring profitability.',
-      tech: 'Python, Scikit-learn, Azure',
-      details: 'Deployed the model on a secure Azure-based web platform, ensuring data integrity and scalability.'
-    },
-    {
-      title: 'Email Classifier for Gmail',
-      description: 'Developed a Python-based machine learning model to classify Gmail emails (e.g., spam, business), hosted on Azure for secure performance.',
-      tech: 'Python, Machine Learning, Azure',
-      details: 'Documented solutions for user training, enhancing productivity and system usability.'
-    },
-    {
-      title: 'Domain-Wise Address Export (Client-Based Project)',
-      description: 'Designed a VBA.NET solution with macros to categorize and extract domain addresses from Gmail accounts, ensuring transparency, privacy, and security.',
-      tech: 'VBA.NET, Excel Macros',
-      details: 'Documented processes and configurations, enabling efficient troubleshooting and maintenance for client workflows.'
-    }
-  ];
-
   const education = [
     {
       degree: 'Post Graduate in Business and Information Systems Architecture',
@@ -128,7 +400,7 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800 pt-20">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/90 via-purple-800/80 to-pink-800/90"></div>
@@ -161,9 +433,9 @@ function App() {
             <a href="mailto:vasavadeepnil2899@gmail.com" className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
               Contact Me
             </a>
-            <a href="#projects" className="border-2 border-purple-400 hover:bg-purple-400 hover:text-purple-900 px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105">
+            <Link to="/projects" className="border-2 border-purple-400 hover:bg-purple-400 hover:text-purple-900 px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105">
               View Projects
-            </a>
+            </Link>
           </div>
           <div className="flex justify-center space-x-6">
             <span className="text-purple-300">📍 London, ON</span>
@@ -252,25 +524,6 @@ function App() {
                     </li>
                   ))}
                 </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section id="projects" className="py-20 bg-gradient-to-r from-pink-900 to-purple-900">
-        <div className="container mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-white mb-16">Projects</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {projects.map((project, index) => (
-              <div key={index} className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-purple-300/20 hover:transform hover:scale-105 transition-all duration-300">
-                <h3 className="text-xl font-bold text-pink-300 mb-4">{project.title}</h3>
-                <p className="text-purple-100 mb-4">{project.description}</p>
-                <p className="text-sm text-purple-200 mb-4">{project.details}</p>
-                <div className="bg-purple-700/50 text-white px-3 py-1 rounded-full text-sm inline-block">
-                  {project.tech}
-                </div>
               </div>
             ))}
           </div>
@@ -386,6 +639,21 @@ function App() {
           <p className="text-purple-400">© 2025 Deepnil Vasava. All rights reserved.</p>
         </div>
       </footer>
+    </div>
+  );
+};
+
+// Main App Component
+function App() {
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<PortfolioPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
