@@ -93,6 +93,11 @@ async def get_contact_messages(limit: int = 50, skip: int = 0):
 @api_router.patch("/contact/{message_id}/read")
 async def mark_message_read(message_id: str):
     try:
+        # First check if the message exists
+        message = await db.contact_messages.find_one({"id": message_id})
+        if not message:
+            raise HTTPException(status_code=404, detail="Message not found")
+            
         result = await db.contact_messages.update_one(
             {"id": message_id},
             {"$set": {"read": True}}
@@ -100,7 +105,11 @@ async def mark_message_read(message_id: str):
         if result.modified_count == 1:
             return {"message": "Message marked as read"}
         else:
+            # This should rarely happen since we already checked existence
             raise HTTPException(status_code=404, detail="Message not found")
+    except HTTPException:
+        # Re-raise HTTP exceptions to preserve status codes
+        raise
     except Exception as e:
         logging.error(f"Error marking message as read: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to update message")
